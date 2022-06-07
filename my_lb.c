@@ -23,10 +23,10 @@ int max(int a1,int a2)
     return m;
 }
 
-void *lb_worker(void* pclient_socket)
+void *lb_worker(void *pclient_socket)
 {
     printf("created new_thread\n");
-    int client_socket = *(int*)client_socket;
+    int client_socket = *(int*)pclient_socket;
     char buf[1024];
     recv(client_socket,buf,1024,0);
     printf("recieved from client: %s\n" , buf);
@@ -137,7 +137,7 @@ int main(int argc, char const* argv[])
     int addrlen = sizeof(address);
     lb_fd = socket(AF_INET, SOCK_STREAM,0);
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_addr.s_addr = inet_addr("10.0.0.1");
     address.sin_port = htons(PORT);
 
     bind(lb_fd, (struct sockaddr*)&address,sizeof(address));
