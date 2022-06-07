@@ -27,6 +27,7 @@ void *lb_worker(void *pclient_socket)
 {
     int client_socket = *(int*)pclient_socket;
     char buf[1024];
+    printf("what is in the buff: %s" ,buf);
     recv(client_socket,buf,1024,0);
     printf("recieved from client: %s\n" , buf);
     char type = buf[0];
@@ -75,7 +76,6 @@ void *lb_worker(void *pclient_socket)
         printf("sending request %s to server1\n",buf);
         send(sock1,buf,1024,0);
         recv(sock1,buf,1024,0);
-        send(client_socket,buf,1024,0);
         pthread_mutex_unlock(&sock1_lock);
     }
     else if(sock_to_send == SOCK2)
@@ -84,7 +84,6 @@ void *lb_worker(void *pclient_socket)
         printf("sending request %s to server2\n",buf);
         send(sock2,buf,1024,0);
         recv(sock2,buf,1024,0);
-        send(client_socket,buf,1024,0);
         pthread_mutex_unlock(&sock2_lock);
     }
     else
@@ -93,9 +92,10 @@ void *lb_worker(void *pclient_socket)
         printf("sending request %s to server3\n",buf);
         send(sock3,buf,1024,0);
         recv(sock3,buf,1024,0);
-        send(client_socket,buf,1024,0);
         pthread_mutex_unlock(&sock3_lock);
     }
+    send(client_socket,buf,1024,0);
+    printf("sending to client %s\n\n" , buf);
     close(client_socket);
 }
 
