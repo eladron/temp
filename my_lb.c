@@ -17,9 +17,9 @@ pthread_mutex_t clocks_lock;
 pthread_mutex_t sock1_lock,sock2_lock,sock3_lock;
 int sock1,sock2,sock3;
 
-int max(int a1,int a2)
+int min(int a1,int a2)
 {
-    int m = a1 >= a2 ? a1 : a2;
+    int m = a1 < a2 ? a1 : a2;
     return m;
 }
 
@@ -33,7 +33,6 @@ void *lb_worker(void *pclient_socket)
     char csize = buf[1];
     int size = atoi(&csize);
     int proc_timeV ,proc_timeM = 0;
-    printf("---%c , %d---\n\n" , type , size);
     if(type == 'M') {
         proc_timeV = 2 * size;
         proc_timeM = size;
@@ -51,13 +50,13 @@ void *lb_worker(void *pclient_socket)
     
     int sock_to_send = 0;
     pthread_mutex_lock(&clocks_lock);
-    int max_value = max(max(clock1+proc_timeV,clock2+proc_timeV),clock3+proc_timeM);
-    if (max_value == clock1+proc_timeV)
+    int min_value = min(min(clock1+proc_timeV,clock2+proc_timeV),clock3+proc_timeM);
+    if (min_value == clock1+proc_timeV)
     {
         sock_to_send = SOCK1;
         clock1 += proc_timeV;
     }
-    else if(max_value == clock2+proc_timeM)
+    else if(min_value == clock2+proc_timeM)
     {
         sock_to_send = SOCK2;
         clock2 += proc_timeV;
