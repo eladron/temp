@@ -25,6 +25,7 @@ int max(int a1,int a2)
 
 void *lb_worker(void* pclient_socket)
 {
+    printf("created new_thread\n");
     int client_socket = *(int*)client_socket;
     char buf[1024];
     recv(client_socket,buf,1024,0);
@@ -124,11 +125,11 @@ int main(int argc, char const* argv[])
     inet_pton(AF_INET, "192.168.0.103", &server_address3.sin_addr);
  
     connect(sock1, (struct sockaddr*)&server_address1, sizeof(server_address1));
-    printf("connected to server 1");
+    printf("connected to server 1\n");
     connect(sock2, (struct sockaddr*)&server_address2, sizeof(server_address2));
-    printf("connected to server 2");
+    printf("connected to server 2\n");
     connect(sock3, (struct sockaddr*)&server_address3, sizeof(server_address3));
-    printf("connected to server 3");
+    printf("connected to server 3\n");
 
     //open socket for loadBalancer and clients
     int lb_fd, new_socket, valread;
