@@ -31,6 +31,7 @@ void *lb_worker(void *pclient_socket)
     printf("recieved from client: %s\n" , buf);
     char type = buf[0];
     char csize = buf[1];
+    buf[2] = '\0';
     int size = atoi(&csize);
     int proc_timeV ,proc_timeM = 0;
     if(type == 'M') {
@@ -56,7 +57,7 @@ void *lb_worker(void *pclient_socket)
         sock_to_send = SOCK1;
         clock1 += proc_timeV;
     }
-    else if(min_value == clock2+proc_timeM)
+    else if(min_value == clock2+proc_timeV)
     {
         sock_to_send = SOCK2;
         clock2 += proc_timeV;
