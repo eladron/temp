@@ -7,8 +7,8 @@
 #include <stdio.h>
 
 #define SOCK1 1
-#define SOCK2 1
-#define SOCK3 1
+#define SOCK2 2
+#define SOCK3 3
 #define PORT 80
 
 
@@ -25,7 +25,6 @@ int max(int a1,int a2)
 
 void *lb_worker(void *pclient_socket)
 {
-    printf("created new_thread\n");
     int client_socket = *(int*)pclient_socket;
     char buf[1024];
     recv(client_socket,buf,1024,0);
@@ -144,7 +143,6 @@ int main(int argc, char const* argv[])
     listen(lb_fd,128);
     while(1)
     {
-        printf("before accept\n");
         int client_socket  = accept(lb_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
         printf("client entered with address %s\n",inet_ntoa(address.sin_addr));
         pthread_t thread_id;
