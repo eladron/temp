@@ -33,6 +33,7 @@ void *lb_worker(void *pclient_socket)
     char csize = buf[1];
     int size = atoi(&csize);
     int proc_timeV ,proc_timeM = 0;
+    printf("---%c , %d---\n\n" , type , size);
     if(type == 'M') {
         proc_timeV = 2 * size;
         proc_timeM = size;
@@ -42,11 +43,12 @@ void *lb_worker(void *pclient_socket)
         proc_timeV = size;
         proc_timeM = 3 * size;
     }
-    else 
+    else
     {
         proc_timeV = size;
         proc_timeM = 2 * size;
     }
+    
     int sock_to_send = 0;
     pthread_mutex_lock(&clocks_lock);
     int max_value = max(max(clock1+proc_timeV,clock2+proc_timeV),clock3+proc_timeM);
