@@ -144,6 +144,7 @@ int main(int argc, char const* argv[])
     listen(lb_fd,128);
     while(1)
     {
+        printf("before accept\n");
         int client_socket  = accept(lb_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
         printf("client entered with address %s\n",inet_ntoa(address.sin_addr));
         pthread_t thread_id;
