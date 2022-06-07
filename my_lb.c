@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define SOCK1 1
 #define SOCK2 1
@@ -24,10 +25,10 @@ int max(int a1,int a2)
 
 void *lb_worker(void* pclient_socket)
 {
-    int client_socket;
-    client_socket = *(int*)client_socket;
-    char* buf[1024];
+    int client_socket = *(int*)client_socket;
+    char buf[1024];
     recv(client_socket,buf,1024,0);
+    printf("recieved from client: %s\n" , buf);
     char type = buf[0];
     char csize = buf[1];
     int size = atoi(&csize);
@@ -69,6 +70,7 @@ void *lb_worker(void* pclient_socket)
     if (sock_to_send == SOCK1)
     {
         pthread_mutex_lock(&sock1_lock);
+        printf("sending request %s to server1\n",buf);
         send(sock1,buf,1024,0);
         recv(sock1,buf,1024,0);
         send(client_socket,buf,1024,0);
@@ -77,6 +79,7 @@ void *lb_worker(void* pclient_socket)
     else if(sock_to_send == SOCK2)
     {
         pthread_mutex_lock(&sock2_lock);
+        printf("sending request %s to server2\n",buf);
         send(sock2,buf,1024,0);
         recv(sock2,buf,1024,0);
         send(client_socket,buf,1024,0);
@@ -85,6 +88,7 @@ void *lb_worker(void* pclient_socket)
     else
     {
         pthread_mutex_lock(&sock3_lock);
+        printf("sending request %s to server3\n",buf);
         send(sock3,buf,1024,0);
         recv(sock3,buf,1024,0);
         send(client_socket,buf,1024,0);
@@ -116,12 +120,15 @@ int main(int argc, char const* argv[])
     server_address3.sin_port = htons(PORT);
  
     inet_pton(AF_INET, "192.168.0.101", &server_address1.sin_addr);
-    inet_pton(AF_INET, "192.168.0.1024", &server_address2.sin_addr);
+    inet_pton(AF_INET, "192.168.0.102", &server_address2.sin_addr);
     inet_pton(AF_INET, "192.168.0.103", &server_address3.sin_addr);
  
     connect(sock1, (struct sockaddr*)&server_address1, sizeof(server_address1));
+    printf("connected to server 1");
     connect(sock2, (struct sockaddr*)&server_address2, sizeof(server_address2));
+    printf("connected to server 2");
     connect(sock3, (struct sockaddr*)&server_address3, sizeof(server_address3));
+    printf("connected to server 3");
 
     //open socket for loadBalancer and clients
     int lb_fd, new_socket, valread;
@@ -137,6 +144,7 @@ int main(int argc, char const* argv[])
     while(1)
     {
         int client_socket  = accept(lb_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
+        printf("client entered with address %s\n",inet_ntoa(address.sin_addr));
         pthread_t thread_id;
         pthread_create(&thread_id, NULL, lb_worker, (void*)&client_socket);
     }
