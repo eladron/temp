@@ -76,6 +76,7 @@ void *lb_worker(void *args)
     }
     pthread_mutex_unlock(&clocks_lock);
 
+    printf("%s with data =%s choose server%d\n",client_address,buf,sock_to_send);
     if (sock_to_send == SOCK1)
     {
         pthread_mutex_lock(&sock1_lock);
@@ -101,7 +102,7 @@ void *lb_worker(void *args)
         pthread_mutex_unlock(&sock3_lock);
     }
     send(client_socket,buf,sizeof(buf),0);
-    printf("sending to address: %s, data = %s from server\n" ,client_address, buf);
+    printf("sending to address: %s, data = %s from server%d\n" ,client_address, buf,sock_to_send);
     close(client_socket);
     free(((struct arg_struct*)args)->client_address);
     free(args);
