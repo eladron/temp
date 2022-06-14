@@ -11,6 +11,12 @@
 #define SOCK3 3
 #define PORT 80
 
+struct arg_struct
+{
+   int client_socket;
+   char* client_address;
+};
+
 
 int clock1 ,clock2 ,clock3 = 0;
 pthread_mutex_t clocks_lock;
@@ -23,13 +29,14 @@ int min(int a1,int a2)
     return m;
 }
 
-void *lb_worker(void *pclient_socket)
+void *lb_worker(void *args)
 {
-    int client_socket = *(int*)pclient_socket;
+    int client_socket = ((struct arg_struct*)args)->client_socket;
+    char* client_address = ((struct arg_struct*)args)->client_address;
     char buf[2];
     printf("what is in the buff: %s\n" ,buf);
     recv(client_socket,buf,sizeof(buf),0);
-    printf("recieved from client: %s\n" , buf);
+    printf("recieved from address: %s : %s\n" , client_address,buf);
     char type = buf[0];
     char csize = buf[1];
     int size = atoi(&csize);
@@ -94,8 +101,9 @@ void *lb_worker(void *pclient_socket)
         pthread_mutex_unlock(&sock3_lock);
     }
     send(client_socket,buf,sizeof(buf),0);
-    printf("sending to client %s\n" , buf);
+    printf("sending to address: %s, data = %s\n" ,client_address, buf);
     close(client_socket);
+    free(args);
 }
 
 int main(int argc, char const* argv[])
@@ -146,8 +154,11 @@ int main(int argc, char const* argv[])
     {
         int client_socket  = accept(lb_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
         printf("client entered with address %s\n",inet_ntoa(address.sin_addr));
+        struct arg_struct *args = (struct arg_struct *)malloc(sizeof(struct arg_struct));
+        args->client_socket = client_socket;
+        args->client_address = inet_ntoa(address.sin_addr);
         pthread_t thread_id;
-        pthread_create(&thread_id, NULL, lb_worker, (void*)&client_socket);
+        pthread_create(&thread_id, NULL, lb_worker, (void*)args);
     }
 
     shutdown(lb_fd, SHUT_RDWR);
