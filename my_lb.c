@@ -26,13 +26,12 @@ int min(int a1,int a2)
 void *lb_worker(void *pclient_socket)
 {
     int client_socket = *(int*)pclient_socket;
-    char buf[1024];
-    printf("what is in the buff: %s" ,buf);
-    recv(client_socket,buf,1024,0);
+    char buf[2];
+    printf("what is in the buff: %s\n" ,buf);
+    recv(client_socket,buf,sizeof(buf),0);
     printf("recieved from client: %s\n" , buf);
     char type = buf[0];
     char csize = buf[1];
-    buf[2] = '\0';
     int size = atoi(&csize);
     int proc_timeV ,proc_timeM = 0;
     if(type == 'M') {
@@ -95,7 +94,7 @@ void *lb_worker(void *pclient_socket)
         pthread_mutex_unlock(&sock3_lock);
     }
     send(client_socket,buf,1024,0);
-    printf("sending to client %s\n\n" , buf);
+    printf("sending to client %s\n" , buf);
     close(client_socket);
 }
 
