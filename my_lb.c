@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define SOCK1 1
 #define SOCK2 2
@@ -34,7 +35,6 @@ void *lb_worker(void *args)
     int client_socket = ((struct arg_struct*)args)->client_socket;
     char* client_address = ((struct arg_struct*)args)->client_address;
     char buf[2];
-    printf("what is in the buff: %s\n" ,buf);
     recv(client_socket,buf,sizeof(buf),0);
     printf("recieved from address: %s : %s\n" , client_address,buf);
     char type = buf[0];
@@ -79,7 +79,7 @@ void *lb_worker(void *args)
     if (sock_to_send == SOCK1)
     {
         pthread_mutex_lock(&sock1_lock);
-        printf("sending request %s to server1\n",buf);
+        printf("sending request from address %s, with data = %s to server1\n",client_address,buf);
         send(sock1,buf,sizeof(buf),0);
         recv(sock1,buf,sizeof(buf),0);
         pthread_mutex_unlock(&sock1_lock);
@@ -87,7 +87,7 @@ void *lb_worker(void *args)
     else if(sock_to_send == SOCK2)
     {
         pthread_mutex_lock(&sock2_lock);
-        printf("sending request %s to server2\n",buf);
+        printf("sending request from address %s, with data = %s to server2\n",client_address,buf);
         send(sock2,buf,sizeof(buf),0);
         recv(sock2,buf,sizeof(buf),0);
         pthread_mutex_unlock(&sock2_lock);
@@ -95,14 +95,15 @@ void *lb_worker(void *args)
     else
     {
         pthread_mutex_lock(&sock3_lock);
-        printf("sending request %s to server3\n",buf);
+        printf("sending request from address %s, with data = %s to server2\n",client_address,buf);
         send(sock3,buf,sizeof(buf),0);
         recv(sock3,buf,sizeof(buf),0);
         pthread_mutex_unlock(&sock3_lock);
     }
     send(client_socket,buf,sizeof(buf),0);
-    printf("sending to address: %s, data = %s\n" ,client_address, buf);
+    printf("sending to address: %s, data = %s\n from server" ,client_address, buf);
     close(client_socket);
+    free(((struct arg_struct*)args)->client_address);
     free(args);
 }
 
@@ -156,7 +157,8 @@ int main(int argc, char const* argv[])
         printf("client entered with address %s\n",inet_ntoa(address.sin_addr));
         struct arg_struct *args = (struct arg_struct *)malloc(sizeof(struct arg_struct));
         args->client_socket = client_socket;
-        args->client_address = inet_ntoa(address.sin_addr);
+        args->client_address = (char*)malloc(sizeof(inet_ntoa(address.sin_addr)) + 1);
+        memcpy(args->client_address, inet_ntoa(address.sin_addr), strlen(inet_ntoa(address.sin_addr))+1);
         pthread_t thread_id;
         pthread_create(&thread_id, NULL, lb_worker, (void*)args);
     }
