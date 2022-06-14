@@ -95,13 +95,13 @@ void *lb_worker(void *args)
     else
     {
         pthread_mutex_lock(&sock3_lock);
-        printf("sending request from address %s, with data = %s to server2\n",client_address,buf);
+        printf("sending request from address %s, with data = %s to server3\n",client_address,buf);
         send(sock3,buf,sizeof(buf),0);
         recv(sock3,buf,sizeof(buf),0);
         pthread_mutex_unlock(&sock3_lock);
     }
     send(client_socket,buf,sizeof(buf),0);
-    printf("sending to address: %s, data = %s\n from server" ,client_address, buf);
+    printf("sending to address: %s, data = %s from server\n" ,client_address, buf);
     close(client_socket);
     free(((struct arg_struct*)args)->client_address);
     free(args);
